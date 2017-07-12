@@ -213,8 +213,6 @@ class MinimaxPlayer(IsolationPlayer):
             raise SearchTimeout()
         
         # TODO: finish this function!
-        # Starting the value to control the depth of the search
-        i_depth=0
         # Initializing the lis to store the utilities values
         utility=[]
         # First I get the legal moves for the actual state of the board
@@ -229,7 +227,7 @@ class MinimaxPlayer(IsolationPlayer):
             #I get a new game apliying the first move
             print(move)
             new_game= game.forecast_move(move)
-            utility.append(self.min_value(new_game,i_depth,depth))
+            utility.append(self.min_value(new_game,depth-1))
         #Taking the maximun value from the utility
         max_utility=max(utility)
         
@@ -237,7 +235,7 @@ class MinimaxPlayer(IsolationPlayer):
     
         #raise NotImplementedError
 
-    def max_value(self,game, i_depth, depth):
+    def max_value(self,game, current_depth):
         """ Implement a function to obtain the max value of a tree 
         
         
@@ -246,11 +244,8 @@ class MinimaxPlayer(IsolationPlayer):
         game : isolation.Board
             An instance of the Isolation game `Board` class representing the
             current game state
-
-        i_depth : int
-            i_depth represent the plie in wich we are searching
         
-        depth : int
+        current_depth : int
             Depth is an integer representing the maximum number of plies to
             search in the game tree before aborting
         
@@ -261,23 +256,22 @@ class MinimaxPlayer(IsolationPlayer):
             The utility value for the movement
         """
         utility=[]
-        i_depth+=1
         
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
         
-        if self.terminal_test(game) or (i_depth>depth):
+        if self.terminal_test(game) or (current_depth==0):
             return self.score(game,self)
         
         legal_moves=game.get_legal_moves()
         
         for move in legal_moves:
             new_game=game.forecast_move(move)
-            utility.append(self.min_value(new_game,i_depth,depth))
+            utility.append(self.min_value(new_game,current_depth-1))
         
         return max(utility)
     
-    def min_value(self,game,i_depth, depth):
+    def min_value(self,game,current_depth):
         """ Implement a function to obtain the min value of a tree 
         
         
@@ -286,11 +280,8 @@ class MinimaxPlayer(IsolationPlayer):
         game : isolation.Board
             An instance of the Isolation game `Board` class representing the
             current game state
-        
-        i_depth : int
-            i_depth represent the plie in wich we are searching
 
-        depth : int
+        current_depth : int
             Depth is an integer representing the maximum number of plies to
             search in the game tree before aborting
 
@@ -300,19 +291,18 @@ class MinimaxPlayer(IsolationPlayer):
             The utility value for the movement
         """
         utility=[]
-        i_depth+=1
         
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
         
-        if self.terminal_test(game) or (i_depth>depth):
+        if self.terminal_test(game) or (current_depth==0):
             return self.score(game,self)
         
         legal_moves=game.get_legal_moves()
         
         for move in legal_moves:
             new_game=game.forecast_move(move)
-            utility.append(self.max_value(new_game,i_depth,depth))
+            utility.append(self.max_value(new_game,current_depth-1))
         
         return min(utility)
         
