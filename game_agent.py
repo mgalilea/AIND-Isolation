@@ -211,11 +211,132 @@ class MinimaxPlayer(IsolationPlayer):
         """
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
-
+        
         # TODO: finish this function!
-        raise NotImplementedError
+        # Starting the value to control the depth of the search
+        i_depth=0
+        # Initializing the lis to store the utilities values
+        utility=[]
+        # First I get the legal moves for the actual state of the board
+        legal_moves=game.get_legal_moves()
+        print(legal_moves)
+        # If there is no legal_moves we have to return (-1,-1)
+        if len(legal_moves)==0:
+            return (-1,1)
+        
+        # I made an iteration to get the utility value for each move aplying minmax
+        for move in legal_moves:
+            #I get a new game apliying the first move
+            print(move)
+            new_game= game.forecast_move(move)
+            utility.append(self.min_value(new_game,i_depth,depth))
+        #Taking the maximun value from the utility
+        max_utility=max(utility)
+        
+        return legal_moves[utility.index(max_utility)]
+    
+        #raise NotImplementedError
 
+    def max_value(self,game, i_depth, depth):
+        """ Implement a function to obtain the max value of a tree 
+        
+        
+        Parameters
+        ----------
+        game : isolation.Board
+            An instance of the Isolation game `Board` class representing the
+            current game state
 
+        i_depth : int
+            i_depth represent the plie in wich we are searching
+        
+        depth : int
+            Depth is an integer representing the maximum number of plies to
+            search in the game tree before aborting
+        
+
+        Returns
+        -------
+        int        
+            The utility value for the movement
+        """
+        utility=[]
+        i_depth+=1
+        
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+        
+        if self.terminal_test(game) or (i_depth>depth):
+            return self.score(game,self)
+        
+        legal_moves=game.get_legal_moves()
+        
+        for move in legal_moves:
+            new_game=game.forecast_move(move)
+            utility.append(self.min_value(new_game,i_depth,depth))
+        
+        return max(utility)
+    
+    def min_value(self,game,i_depth, depth):
+        """ Implement a function to obtain the min value of a tree 
+        
+        
+        Parameters
+        ----------
+        game : isolation.Board
+            An instance of the Isolation game `Board` class representing the
+            current game state
+        
+        i_depth : int
+            i_depth represent the plie in wich we are searching
+
+        depth : int
+            Depth is an integer representing the maximum number of plies to
+            search in the game tree before aborting
+
+        Returns
+        -------
+        int        
+            The utility value for the movement
+        """
+        utility=[]
+        i_depth+=1
+        
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+        
+        if self.terminal_test(game) or (i_depth>depth):
+            return self.score(game,self)
+        
+        legal_moves=game.get_legal_moves()
+        
+        for move in legal_moves:
+            new_game=game.forecast_move(move)
+            utility.append(self.max_value(new_game,i_depth,depth))
+        
+        return min(utility)
+        
+    def terminal_test(self,game):
+        """ Determine if the game is at the end for the player
+        
+        Parameters
+        ----------
+        game : isolation.Board
+            An instance of the Isolation game `Board` class representing the
+            current game state
+        
+        Returns
+        -------
+        boolean        
+            if the legal_moves=0 then is the end of the game 
+        """
+            
+        moves=game.get_legal_moves()
+        
+        if len(moves)==0:
+            return True
+        return False
+    
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
     search with alpha-beta pruning. You must finish and test this player to
