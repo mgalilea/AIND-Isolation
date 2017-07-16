@@ -3,6 +3,7 @@ test your agent's strength against a set of known agents using tournament.py
 and include the results in your report.
 """
 import random
+import math
 
 
 class SearchTimeout(Exception):
@@ -35,7 +36,16 @@ def custom_score(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+    
+    moves = len(game.get_legal_moves())
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+
+    return float(moves - opp_moves + calc_central(game, game.get_player_location(player)))
 
 
 def custom_score_2(game, player):
@@ -61,7 +71,16 @@ def custom_score_2(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+    
+    moves = len(game.get_legal_moves())
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    
+    return float(moves - opp_moves)
 
 
 def custom_score_3(game, player):
@@ -87,8 +106,50 @@ def custom_score_3(game, player):
         The heuristic value of the current game state to the specified player.
     """
     # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
 
+    if game.is_winner(player):
+        return float("inf")
+    
+    moves = len(game.get_legal_moves())
+    opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    
+    if moves != opp_moves:
+        return float(moves - opp_moves)
+
+    else:
+        #If the number of moves is equal I use the manhathan disrtance to determine te evaluation function 
+        
+        center_y_pos, center_x_pos = int(game.height / 2), int(game.width / 2)
+        player_y_pos, player_x_pos = game.get_player_location(player)
+        opponent_y_pos, opponent_x_pos = game.get_player_location(game.get_opponent(player))
+        player_distance = abs(player_y_pos - center_y_pos) + abs(player_x_pos - center_x_pos)
+        opponent_distance = abs(opponent_y_pos - center_y_pos) + abs(opponent_x_pos - center_x_pos)
+        # Diference between the player and opponente player scale between -1 y 1.
+        return float(opponent_distance - player_distance) / 10.
+
+def calc_central(game, move):
+    """ Calculate the distance between move and the center of the board
+    
+    Parameters
+    ----------
+    game : `isolation.Board`
+        An instance of `isolation.Board` encoding the current state of the
+        game (e.g., player locations and blocked cells).
+
+    player : object
+        A player instance in the current game (i.e., an object corresponding to
+        one of the player objects `game.__player_1__` or `game.__player_2__`.)
+
+    Returns
+    -------
+    float
+        The distance value between the position and the center of the board.
+    """
+    x, y = move
+    cx, cy = (math.ceil(game.width / 2), math.ceil(game.height / 2))
+    return (game.width - cx) ** 2 + (game.height - cy) ** 2 - (x - cx) ** 2 - (y - cy) ** 2
 
 class IsolationPlayer:
     """Base class for minimax and alphabeta agents -- this class is never
