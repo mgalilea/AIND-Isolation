@@ -44,9 +44,20 @@ def custom_score(game, player):
     
     moves = len(game.get_legal_moves())
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    
+    if moves != opp_moves:
+        return float(moves - opp_moves)
 
-    return float(moves - opp_moves + calc_central(game, game.get_player_location(player)))
-
+    else:
+        #If the number of moves is equal I use the manhathan distance to determine te evaluation function 
+        
+        center_y_pos, center_x_pos = int(game.height / 2), int(game.width / 2)
+        player_y_pos, player_x_pos = game.get_player_location(player)
+        opponent_y_pos, opponent_x_pos = game.get_player_location(game.get_opponent(player))
+        player_distance = abs(player_y_pos - center_y_pos) + abs(player_x_pos - center_x_pos)
+        opponent_distance = abs(opponent_y_pos - center_y_pos) + abs(opponent_x_pos - center_x_pos)
+        # Diference between the player and opponente player scale between -1 y 1.
+        return float(opponent_distance - player_distance) / 10
 
 def custom_score_2(game, player):
     """Calculate the heuristic value of a game state from the point of view
@@ -77,10 +88,27 @@ def custom_score_2(game, player):
     if game.is_winner(player):
         return float("inf")
     
+   # I´m going to get how many moves I have and my opponent have
     moves = len(game.get_legal_moves())
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
     
-    return float(moves - opp_moves)
+    if moves != opp_moves:
+        return float(moves - opp_moves)
+
+    else:
+        #If the number of moves is equal I use the euclidean distance to determine te evaluation function 
+        
+        center_y_pos, center_x_pos = int(game.height / 2), int(game.width / 2)
+        player_y_pos, player_x_pos = game.get_player_location(player)
+        opponent_y_pos, opponent_x_pos = game.get_player_location(game.get_opponent(player))
+        dx = abs(player_x_pos - center_x_pos)
+        dy = abs(player_y_pos - center_y_pos)
+        player_distance= math.sqrt(dx*dx + dy*dy)
+        dx = abs(opponent_x_pos - center_x_pos)
+        dy = abs(opponent_y_pos - center_y_pos)
+        opponent_distance = math.sqrt(dx*dx + dy*dy) 
+        # Diference between the player and opponente player scale between -1 y 1.
+        return float(opponent_distance - player_distance) / 10
 
 
 def custom_score_3(game, player):
@@ -114,22 +142,11 @@ def custom_score_3(game, player):
     
     moves = len(game.get_legal_moves())
     opp_moves = len(game.get_legal_moves(game.get_opponent(player)))
-    
-    if moves != opp_moves:
-        return float(moves - opp_moves)
 
-    else:
-        #If the number of moves is equal I use the manhathan disrtance to determine te evaluation function 
-        
-        center_y_pos, center_x_pos = int(game.height / 2), int(game.width / 2)
-        player_y_pos, player_x_pos = game.get_player_location(player)
-        opponent_y_pos, opponent_x_pos = game.get_player_location(game.get_opponent(player))
-        player_distance = abs(player_y_pos - center_y_pos) + abs(player_x_pos - center_x_pos)
-        opponent_distance = abs(opponent_y_pos - center_y_pos) + abs(opponent_x_pos - center_x_pos)
-        # Diference between the player and opponente player scale between -1 y 1.
-        return float(opponent_distance - player_distance) / 10.
+    return float(moves - opp_moves + calc_dist_central(game, game.get_player_location(player)))
 
-def calc_central(game, move):
+
+def calc_dist_central(game, move):
     """ Calculate the distance between move and the center of the board
     
     Parameters
@@ -278,7 +295,7 @@ class MinimaxPlayer(IsolationPlayer):
         utility=[]
         # First I get the legal moves for the actual state of the board
         legal_moves=game.get_legal_moves()
-        print(legal_moves)
+        # print(legal_moves)
         # If there is no legal_moves we have to return (-1,-1)
         if len(legal_moves)==0:
             return (-1,1)
@@ -286,7 +303,7 @@ class MinimaxPlayer(IsolationPlayer):
         # I made an iteration to get the utility value for each move aplying minmax
         for move in legal_moves:
             #I get a new game apliying the first move
-            print(move)
+          #  print(move)
             new_game= game.forecast_move(move)
             utility.append(self.min_value(new_game,depth-1))
         #Taking the maximun value from the utility
